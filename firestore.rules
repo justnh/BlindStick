@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    // Hồ sơ người dùng: chỉ chủ tài khoản đọc/ghi
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Tra mã liên kết: ai đã đăng nhập cũng chỉ được "get" 1 mã cụ thể (không được liệt kê)
+    match /codes/{code} {
+      allow get: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.uid == request.auth.uid
+                            && request.resource.data.uid == request.auth.uid;
+    }
+
+    // Liên kết người dùng gậy <-> người thân.
+    // SERVER đối chiếu lại email + mã với bảng codes trước khi cho tạo liên kết.
+    match /links/{linkId} {
+      allow read: if signedIn() &&
+        (resource.data.caneUid == request.auth.uid || resource.data.relativeUid == request.auth.uid);
+
+      allow create: if signedIn()
+        && request.resource.data.relativeUid == request.auth.uid
+        && linkId == request.resource.data.caneUid + '_' + request.auth.uid
+        && request.resource.data.relativeEmail == request.auth.token.email.lower()
+        && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.uid == request.resource.data.caneUid
+        && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.email == request.resource.data.caneEmail;
+
+      allow delete: if signedIn() &&
+        (resource.data.caneUid == request.auth.uid || resource.data.relativeUid == request.auth.uid);
+    }
+
+    // Trạng thái + vị trí realtime của người dùng gậy
+    match /cane_status/{caneUid} {
+      function linked() {
+        return exists(/databases/$(database)/documents/links/$(caneUid + '_' + request.auth.uid));
+      }
+
+      allow read: if signedIn() && (request.auth.uid == caneUid || linked());
+      allow create, update: if signedIn() && request.auth.uid == caneUid;
+      // Người thân chỉ được đổi trạng thái về AN TOÀN
+      allow update: if signedIn() && linked()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'ackAt', 'ackBy']);
+
+      match /falls/{fallId} {
+        allow read: if signedIn() && (request.auth.uid == caneUid || linked());
+        allow create: if signedIn() && request.auth.uid == caneUid;
+      }
+    }
+  }
+}

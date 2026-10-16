@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="icon_bg">#FF1E88E5</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">Gậy Thông Minh</string>
+    <string name="default_web_client_id" translatable="false">299192800413-f3cng2uappbs46og3tmr6bqquhvtnorp.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">299192800413</string>
+    <string name="google_api_key" translatable="false">AIzaSyD74CsmsDT6ZhtqtyGwrudhJTaswkD7pfk</string>
+    <string name="google_app_id" translatable="false">1:299192800413:android:ae75bac9e63c993f553074</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyD74CsmsDT6ZhtqtyGwrudhJTaswkD7pfk</string>
+    <string name="google_storage_bucket" translatable="false">gaythongminh-86f7c.firebasestorage.app</string>
+    <string name="project_id" translatable="false">gaythongminh-86f7c</string>
+    <style name="Theme.GayThongMinh" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:statusBarColor">#FF1E88E5</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>
